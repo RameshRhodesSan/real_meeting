@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:meeting_app/models/meeting_config.dart';
+import 'package:meeting_app/screens/home_screen_constants.dart';
 
 abstract class MeetingEvent extends Equatable {
   const MeetingEvent();
@@ -9,10 +11,15 @@ abstract class MeetingEvent extends Equatable {
   }
 }
 
-class MeetingCreateEvent extends MeetingEvent {
-  const MeetingCreateEvent();
+class MeetingActionEvent extends MeetingEvent{
+  final MeetingAction action;
+  const MeetingActionEvent(this.action);
 }
 
 class MeetingJoinEvent extends MeetingEvent {
-  const MeetingJoinEvent();
+  final MeetingConfig meetingConfig;
+  const MeetingJoinEvent(this.meetingConfig);
+
+  @override
+  List<Object> get props => [meetingConfig];
 }

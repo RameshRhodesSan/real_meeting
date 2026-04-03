@@ -16,18 +16,25 @@ class MeetingBloc extends Bloc<MeetingEvent, MeetingState> {
   MeetingBloc()
       : apiService = MeetingApiService(),
         super(const MeetingState()) {
-    on<MeetingCreateEvent>(_onCreateMeeting);
     on<MeetingJoinEvent>(_onJoinMeeting);
+    on<MeetingActionEvent>(_onMeetingAction);
   }
 
-  Future<void> _onCreateMeeting(MeetingCreateEvent event, Emitter<MeetingState> emit) async {
+  Future<void> _onMeetingAction(MeetingActionEvent event, Emitter<MeetingState> emit) async {
     if (state.isLoading) return;
 
     emit(state.copyWith(isLoading: true, loadingAction: MeetingAction.create));
-    Either<MeetingConfig, Failure> config = await apiService.createMeeting();
+    Either<MeetingConfig, Failure> config;
+    switch (event.action) {
+      case MeetingAction.create:
+        config = await apiService.createMeeting();
+      case MeetingAction.join:
+        config = await apiService.joinMeeting();
+    }
     config.fold((l) {
       //Success create api call
       emit(state.copyWith(meetingConfig: l));
+      add(MeetingJoinEvent(l));
     }, (r) {
       debugPrint('Failed to create meeting: ${r.message}');
       // todo to implement failure msg to ui
@@ -36,6 +43,10 @@ class MeetingBloc extends Bloc<MeetingEvent, MeetingState> {
   }
 
   Future<void> _onJoinMeeting(MeetingJoinEvent event, Emitter<MeetingState> emit) async {
-    // todo to add the join api call
+    if (state.isLoading) return;
+
+    emit(state.copyWith(isLoading: true, loadingAction: MeetingAction.join));
+    await Future<void>.delayed(const Duration(seconds: 1));
+    emit(state.copyWith(isLoading: false, clearLoadingAction: true));
   }
 }

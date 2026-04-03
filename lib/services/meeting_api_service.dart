@@ -39,4 +39,9 @@ class MeetingApiService {
       throw Exception('$label error: ${decoded['message'] ?? res.body}');
     }
   }
+
+  Future<Either<MeetingConfig, Failure>> joinMeeting() async {
+    //Todo yet to be added the api call
+    return Right(ApiFailure(message: ''));
+  }
 }

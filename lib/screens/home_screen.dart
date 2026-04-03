@@ -107,12 +107,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               CommonButton(
                                 isLoading: state.isLoading && state.loadingAction == MeetingAction.create,
                                 buttonType: MeetingAction.create,
-                                onPressed: () => context.read<MeetingBloc>().add(const MeetingCreateEvent()),
+                                onPressed: () => context.read<MeetingBloc>().add(const MeetingActionEvent(MeetingAction.create)),
                               ),
                               CommonButton(
                                 isLoading: state.isLoading && state.loadingAction == MeetingAction.join,
                                 buttonType: MeetingAction.join,
-                                onPressed: () => context.read<MeetingBloc>().add(const MeetingJoinEvent()),
+                                onPressed: () => context.read<MeetingBloc>().add(const MeetingActionEvent(MeetingAction.join)),
                               ),
                             ],
                           );
