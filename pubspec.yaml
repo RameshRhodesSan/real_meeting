@@ -39,6 +39,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   wakelock_plus: ^1.2.5
   fpdart: ^1.2.0
+  aws_chime_api: ^2.0.0
 
 dev_dependencies:
   flutter_test:

@@ -11,9 +11,17 @@ abstract class MeetingEvent extends Equatable {
   }
 }
 
-class MeetingActionEvent extends MeetingEvent{
+class MeetingActionEvent extends MeetingEvent {
   final MeetingAction action;
+
   const MeetingActionEvent(this.action);
+
+  @override
+  List<Object> get props => [action];
+}
+
+class MeetingJoinActionEvent extends MeetingActionEvent {
+  const MeetingJoinActionEvent() : super(MeetingAction.join);
 }
 
 class MeetingJoinEvent extends MeetingEvent {

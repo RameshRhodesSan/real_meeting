@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aws_chime_api/chime-2018-05-01.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/fpdart.dart';
@@ -15,7 +16,7 @@ class MeetingBloc extends Bloc<MeetingEvent, MeetingState> {
 
   MeetingBloc()
       : apiService = MeetingApiService(),
-        super(const MeetingState()) {
+        super(MeetingState(joinMeetingIdController: TextEditingController())) {
     on<MeetingJoinEvent>(_onJoinMeeting);
     on<MeetingActionEvent>(_onMeetingAction);
   }
@@ -23,13 +24,20 @@ class MeetingBloc extends Bloc<MeetingEvent, MeetingState> {
   Future<void> _onMeetingAction(MeetingActionEvent event, Emitter<MeetingState> emit) async {
     if (state.isLoading) return;
 
-    emit(state.copyWith(isLoading: true, loadingAction: MeetingAction.create));
+    if (event.action == MeetingAction.join && state.joinMeetingIdController.text.trim().isEmpty) {
+      debugPrint('Join meeting id is empty.');
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, loadingAction: event.action));
     Either<MeetingConfig, Failure> config;
     switch (event.action) {
       case MeetingAction.create:
         config = await apiService.createMeeting();
       case MeetingAction.join:
-        config = await apiService.joinMeeting();
+        config = await apiService.joinMeeting(
+          meetingId: state.joinMeetingIdController.text.trim(),
+        );
     }
     config.fold((l) {
       //Success create api call
@@ -47,6 +55,25 @@ class MeetingBloc extends Bloc<MeetingEvent, MeetingState> {
 
     emit(state.copyWith(isLoading: true, loadingAction: MeetingAction.join));
     await Future<void>.delayed(const Duration(seconds: 1));
+    MeetingConfig config = state.meetingConfig!;
+    AwsClientCredentials credentials = AwsClientCredentials(
+      accessKey: config.joinToken,
+      secretKey: config.attendeeId,
+    );
+    Chime chime = Chime(
+      region: config.mediaRegion,
+      credentials: credentials,
+    );
+
+    debugPrint("Chime data => ${chime.runtimeType}");
+    chime.createMeeting(clientRequestToken: config.joinToken);
+    //todo yet to test this flow, once api key is ready
     emit(state.copyWith(isLoading: false, clearLoadingAction: true));
+  }
+
+  @override
+  Future<void> close() {
+    state.joinMeetingIdController.dispose();
+    return super.close();
   }
 }

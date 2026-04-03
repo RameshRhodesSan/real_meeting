@@ -14,6 +14,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 const double _actionButtonHeight = 48;
+const double _joinActionSectionHeight = 120;
 
 ButtonStyle get _primaryButtonStyle => ElevatedButton.styleFrom(
       minimumSize: const Size(double.infinity, _actionButtonHeight),
@@ -98,21 +99,48 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     ),
                     const SizedBox(height: 24),
                     SizedBox(
-                      height: _actionButtonHeight,
+                      height: _joinActionSectionHeight,
                       child: BlocBuilder<MeetingBloc, MeetingState>(
                         builder: (context, state) {
                           return TabBarView(
                             controller: _tabController,
                             children: [
-                              CommonButton(
-                                isLoading: state.isLoading && state.loadingAction == MeetingAction.create,
-                                buttonType: MeetingAction.create,
-                                onPressed: () => context.read<MeetingBloc>().add(const MeetingActionEvent(MeetingAction.create)),
+                              Align(
+                                alignment: Alignment.topCenter,
+                                child: CommonButton(
+                                  isLoading: state.isLoading && state.loadingAction == MeetingAction.create,
+                                  buttonType: MeetingAction.create,
+                                  onPressed: () => context.read<MeetingBloc>().add(const MeetingActionEvent(MeetingAction.create)),
+                                ),
                               ),
-                              CommonButton(
-                                isLoading: state.isLoading && state.loadingAction == MeetingAction.join,
-                                buttonType: MeetingAction.join,
-                                onPressed: () => context.read<MeetingBloc>().add(const MeetingActionEvent(MeetingAction.join)),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  TextField(
+                                    controller: state.joinMeetingIdController,
+                                    textInputAction: TextInputAction.done,
+                                    decoration: InputDecoration(
+                                      hintText: 'Enter meeting ID',
+                                      filled: true,
+                                      fillColor: AppTheme.cardColor,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(color: AppTheme.dividerColor),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(color: AppTheme.dividerColor),
+                                      ),
+                                    ),
+                                    onSubmitted: (_) => context.read<MeetingBloc>().add(const MeetingJoinActionEvent()),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  CommonButton(
+                                    isLoading: state.isLoading && state.loadingAction == MeetingAction.join,
+                                    buttonType: MeetingAction.join,
+                                    onPressed: () => context.read<MeetingBloc>().add(const MeetingJoinActionEvent()),
+                                  ),
+                                ],
                               ),
                             ],
                           );

@@ -40,8 +40,24 @@ class MeetingApiService {
     }
   }
 
-  Future<Either<MeetingConfig, Failure>> joinMeeting() async {
-    //Todo yet to be added the api call
-    return Right(ApiFailure(message: ''));
+  Future<Either<MeetingConfig, Failure>> joinMeeting({required String meetingId}) async {
+    {
+      try {
+        debugPrint('[API] joinMeeting -> meetingId=$meetingId ');
+        final uri = Uri.parse('$_base/meetings?type=client&meeting_id=$meetingId');
+        debugPrint('[API] POST $uri');
+        final response = await http.post(
+          uri,
+          headers: {AppConstants.apiKey: _keyPrimary},
+        );
+        debugPrint('[API] joinMeeting -> ${response.statusCode}: ${response.body}');
+        _assertOk(response, 'joinMeeting');
+        Map<String, dynamic> jsonParsedData = jsonDecode(response.body);
+        MeetingConfig config = MeetingConfig.fromAssessmentJson(jsonParsedData);
+        return Left(config);
+      } on Exception catch (e) {
+        return Right(ApiFailure(message: e.toString()));
+      }
+    }
   }
 }
