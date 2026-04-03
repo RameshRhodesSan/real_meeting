@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meeting_app/bloc/meeting/meeting_bloc.dart';
 import 'package:meeting_app/screens/home_screen.dart';
 import 'package:meeting_app/utils/app_theme.dart';
 
@@ -29,7 +31,10 @@ class MeetingApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: AppTheme.backgroundColor,
       ),
-      home: const HomeScreen(),
+      home: BlocProvider(
+        create: (_) => MeetingBloc(),
+        child: const HomeScreen(),
+      ),
     );
   }
 }

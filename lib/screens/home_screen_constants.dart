@@ -1,32 +1,32 @@
 
 import 'package:flutter/material.dart';
 
-enum ButtonType { create, join }
+enum MeetingAction { create, join }
 
-extension ButtonTypeExtension on ButtonType {
+extension MeetingActionExtension on MeetingAction {
   IconData getIcon() {
     switch (this) {
-      case ButtonType.create:
+      case MeetingAction.create:
         return Icons.video_call;
-      case ButtonType.join:
+      case MeetingAction.join:
         return Icons.person;
     }
   }
 
   String getLabel() {
     switch (this) {
-      case ButtonType.create:
+      case MeetingAction.create:
         return 'Create a Meeting';
-      case ButtonType.join:
+      case MeetingAction.join:
         return 'Join Meeting';
     }
   }
 
   String getLoadingLabel() {
     switch (this) {
-      case ButtonType.create:
+      case MeetingAction.create:
         return 'Creating';
-      case ButtonType.join:
+      case MeetingAction.join:
         return 'Joining';
     }
   }

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meeting_app/bloc/meeting/meeting_bloc.dart';
+import 'package:meeting_app/bloc/meeting/meeting_event.dart';
+import 'package:meeting_app/bloc/meeting/meeting_state.dart';
 import 'package:meeting_app/screens/home_screen_constants.dart';
 import 'package:meeting_app/utils/app_theme.dart';
 
@@ -28,6 +32,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -89,22 +99,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     const SizedBox(height: 24),
                     SizedBox(
                       height: _actionButtonHeight,
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          CommonButton(
-                              isLoading: false,
-                              buttonType: ButtonType.create,
-                              onPressed: () {
-                                //Todo To call the Create API
-                              }),
-                          CommonButton(
-                              isLoading: false,
-                              buttonType: ButtonType.join,
-                              onPressed: () {
-                                //Todo To call the Join API
-                              }),
-                        ],
+                      child: BlocBuilder<MeetingBloc, MeetingState>(
+                        builder: (context, state) {
+                          return TabBarView(
+                            controller: _tabController,
+                            children: [
+                              CommonButton(
+                                isLoading: state.isLoading && state.loadingAction == MeetingAction.create,
+                                buttonType: MeetingAction.create,
+                                onPressed: () => context.read<MeetingBloc>().add(const MeetingCreateEvent()),
+                              ),
+                              CommonButton(
+                                isLoading: state.isLoading && state.loadingAction == MeetingAction.join,
+                                buttonType: MeetingAction.join,
+                                onPressed: () => context.read<MeetingBloc>().add(const MeetingJoinEvent()),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -130,8 +142,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
 class CommonButton extends StatelessWidget {
   final bool isLoading;
-  final ButtonType buttonType;
-  final VoidCallback onPressed;
+  final MeetingAction buttonType;
+  final VoidCallback? onPressed;
 
   const CommonButton({
     super.key,
@@ -144,7 +156,7 @@ class CommonButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       style: _primaryButtonStyle,
-      onPressed: onPressed,
+      onPressed: isLoading ? null : onPressed,
       icon: isLoading
           ? const SizedBox(
               width: 20,
