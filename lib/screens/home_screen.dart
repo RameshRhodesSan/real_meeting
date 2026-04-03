@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meeting_app/screens/home_screen_constants.dart';
 import 'package:meeting_app/utils/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -8,20 +9,20 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+const double _actionButtonHeight = 48;
+
+ButtonStyle get _primaryButtonStyle => ElevatedButton.styleFrom(
+      minimumSize: const Size(double.infinity, _actionButtonHeight),
+      maximumSize: const Size(double.infinity, _actionButtonHeight),
+    );
+
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
-  static const double _actionButtonHeight = 48;
-
-  ButtonStyle get _primaryButtonStyle => ElevatedButton.styleFrom(
-    minimumSize: const Size(double.infinity, _actionButtonHeight),
-    maximumSize: const Size(double.infinity, _actionButtonHeight),
-  );
-
   ButtonStyle get _secondaryButtonStyle => OutlinedButton.styleFrom(
-    minimumSize: const Size(double.infinity, _actionButtonHeight),
-    maximumSize: const Size(double.infinity, _actionButtonHeight),
-  );
+        minimumSize: const Size(double.infinity, _actionButtonHeight),
+        maximumSize: const Size(double.infinity, _actionButtonHeight),
+      );
 
   @override
   void initState() {
@@ -91,8 +92,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       child: TabBarView(
                         controller: _tabController,
                         children: [
-                          createMeeting(isLoading: false),
-                          joinMeeting(isLoading: false),
+                          CommonButton(
+                              isLoading: false,
+                              buttonType: ButtonType.create,
+                              onPressed: () {
+                                //Todo To call the Create API
+                              }),
+                          CommonButton(
+                              isLoading: false,
+                              buttonType: ButtonType.join,
+                              onPressed: () {
+                                //Todo To call the Join API
+                              }),
                         ],
                       ),
                     ),
@@ -101,9 +112,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
               ),
               OutlinedButton.icon(
-                // onPressed: () => Navigator.of(context).push(
-                //   MaterialPageRoute(builder: (_) => const EventLogScreen()),
-                // ),
                 icon: const Icon(Icons.list_alt, size: 18),
                 label: const Text('View Event Log'),
                 style: _secondaryButtonStyle,
@@ -118,26 +126,35 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
     );
   }
+}
 
-  Widget joinMeeting({required bool isLoading}) {
+class CommonButton extends StatelessWidget {
+  final bool isLoading;
+  final ButtonType buttonType;
+  final VoidCallback onPressed;
+
+  const CommonButton({
+    super.key,
+    required this.isLoading,
+    required this.buttonType,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return ElevatedButton.icon(
       style: _primaryButtonStyle,
-      onPressed: () {},
+      onPressed: onPressed,
       icon: isLoading
-          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-          : const Icon(Icons.video_call),
-      label: Text(isLoading ? 'Joining…' : 'Join Meeting'),
-    );
-  }
-
-  Widget createMeeting({required bool isLoading}) {
-    return ElevatedButton.icon(
-      style: _primaryButtonStyle,
-      onPressed: () {},
-      icon: isLoading
-          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-          : const Icon(Icons.video_call),
-      label: Text(isLoading ? 'Creating…' : 'Create a Meeting'),
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ))
+          : Icon(buttonType.getIcon()),
+      label: Text(isLoading ? buttonType.getLoadingLabel() : buttonType.getLabel()),
     );
   }
 }
