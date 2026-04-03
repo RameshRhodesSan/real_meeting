@@ -40,8 +40,7 @@ class MeetingBloc extends Bloc<MeetingEvent, MeetingState> {
         );
     }
     config.fold((l) {
-      //Success create api call
-      emit(state.copyWith(meetingConfig: l));
+      emit(state.copyWith(meetingConfig: l, navigateToMeeting: true));
       add(MeetingJoinEvent(l));
     }, (r) {
       debugPrint('Failed to create meeting: ${r.message}');

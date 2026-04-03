@@ -4,6 +4,7 @@ import 'package:meeting_app/bloc/meeting/meeting_bloc.dart';
 import 'package:meeting_app/bloc/meeting/meeting_event.dart';
 import 'package:meeting_app/bloc/meeting/meeting_state.dart';
 import 'package:meeting_app/screens/home_screen_constants.dart';
+import 'package:meeting_app/screens/meeting_screen.dart';
 import 'package:meeting_app/utils/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -43,8 +44,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
+    return BlocListener<MeetingBloc, MeetingState>(
+      listenWhen: (prev, curr) => !prev.navigateToMeeting && curr.navigateToMeeting,
+      listener: (context, state) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => BlocProvider.value(
+              value: context.read<MeetingBloc>(),
+              child: const MeetingScreen(),
+            ),
+          ),
+        );
+      },
+      child: Scaffold(
+        body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -164,7 +177,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }
 
